@@ -21,13 +21,17 @@ parameters = {
 
 response = requests.get(endpoint, params=parameters)
 response.raise_for_status()
+final_url = response.url
 
 soup = BeautifulSoup(response.text, "html.parser")
 
 global_content = soup.select(selector=".job_seen_beacon")
-url_content = soup.select('a:not(:has(*))')  # ne fonctionne pas (tri à faire)
+url_content = soup.select(selector=".mosaic-provider-jobcards")  # ne fonctionne pas (tri à faire)
 # print(global_content)
-# print(url_content)
+# print(f"{url_content}\n\n\n------------------------------------------")  # problème lié à la longueur
+
+# print(len(global_content))
+# print(len(url_content))
 
 for content, url in zip(global_content, url_content):
     job_title = content.h2.getText().replace("nouveau", "")
@@ -48,8 +52,8 @@ for content, url in zip(global_content, url_content):
     except IndexError:
         post_date = today.strftime("%Y-%m-%d")
 
-    job_summary = content.find("li").getText()
-    # job_url = endpoint + url.get("href")
+    job_summary = content.find("div", "job-snippet").getText().strip()
+    # job_url = endpoint + url.find("a", "tapItem").get("href")
     print(job_title)
     print(job_company)
     print(job_location)
