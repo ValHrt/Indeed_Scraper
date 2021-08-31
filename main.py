@@ -1,7 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
+import re
+import datetime as dt
 
 endpoint = "https://fr.indeed.com/jobs"
+
+today = dt.datetime.today()
 
 job_name = input("Intitulé du poste : ")
 job_location = input("Lieu du poste : ")
@@ -21,9 +25,11 @@ response.raise_for_status()
 soup = BeautifulSoup(response.text, "html.parser")
 
 global_content = soup.select(selector=".job_seen_beacon")
-print(global_content)
+url_content = soup.select('a:not(:has(*))')  # ne fonctionne pas (tri à faire)
+# print(global_content)
+# print(url_content)
 
-for content in global_content:
+for content, url in zip(global_content, url_content):
     job_title = content.h2.getText().replace("nouveau", "")
     job_company = content.find("span", "companyName").getText()
     job_location = content.find("div", "companyLocation").getText()
@@ -34,15 +40,20 @@ for content in global_content:
         job_salary = "Absence de données"
 
     try:
-        post_date = (n for n in content.find("span", "date").getText() if n.isdigit())  # ne fonctionne pas
-    except AttributeError:
-        post_date = 0
+        post_date = int(re.findall("\\d+", content.find("span", "date").getText())[0])
+        if post_date < 30:
+            post_date = (today - dt.timedelta(days=post_date)).strftime("%Y-%m-%d")
+        else:
+            post_date = "Posté il y a plus de 30 jours"
+    except IndexError:
+        post_date = today.strftime("%Y-%m-%d")
 
     job_summary = content.find("li").getText()
+    # job_url = endpoint + url.get("href")
     print(job_title)
     print(job_company)
     print(job_location)
     print(job_salary)
     print(post_date)
-    print(type(post_date))
     print(job_summary)
+    # print(job_url)
