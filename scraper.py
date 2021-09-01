@@ -27,6 +27,10 @@ class Scraper:
 
     @staticmethod
     def get_record(content: BeautifulSoup, today: dt, final_url: str):
+        """"Permet d'obtenir les enregistrements au format texte pour les éléments suivants :
+         Titre / Nom de l'entreprise / Lieu / Salaire / Lien de l'annonce / Résumé de l'annonce.
+         Cette fonction doit être intégrée dans une boucle (for loop) pour pouvoir récupérer les
+         éléments de toutes les balises <a> !"""
         job_title = content.h2.getText().replace("nouveau", "")
         job_company = content.find("span", "companyName").getText()
         job_location = content.find("div", "companyLocation").getText()
@@ -55,11 +59,29 @@ class Scraper:
 
     @staticmethod
     def scrape_html(html_text: str):
+        """"Permet de créer la soupe et de sélectionner les tags dans lesquels les données
+        sont contenues. Cette fonction doit être rappelée pour chaque nouvelle page à scraper.
+        Attention : Dans le cas d'une nouvelle page à scraper, il faut impérativement passer
+        l'argument html_text avec les données de la nouvelle page. Il faut donc modifier les
+        valeurs self : exemple :
+        scraper = Scraper(job_name, job_location, job_distance, job_type)
+        scraper.response = requests.get(next_page)
+        scraper.response.raise_for_status()
+        scraper.final_url = scraper.response.url
+        scraper.soup = scraper.scrape_html(scraper.response.text)[0]
+        global_content = scraper.scrape_html(scraper.response.text)[1]
+
+        Cette fonction retourne un tuple avec en 0 la soupe et en 1 les éléments sélectionnés."""
         soup = BeautifulSoup(html_text, "html.parser")
         global_content = soup.select("a[data-jk]")
         return soup, global_content
 
     def get_next_page(self, soup: BeautifulSoup):
+        """Fonction permettant d'obtenir la page suivante sur le site Indeed.
+        Elle prend pour argument la soupe de la page en cours. Cette dernière
+        est accessible de la façon suivante :
+        scraper = Scraper(job_name, job_location, job_distance, job_type)
+        next_page = scraper.get_next_page(scraper.soup)"""
         url_tag = soup.select('a[aria-label="Suivant"]')
         tmp = self.final_url
         for tag in url_tag:
