@@ -25,18 +25,14 @@ final_url = response.url
 
 soup = BeautifulSoup(response.text, "html.parser")
 
-global_content = soup.select(selector=".job_seen_beacon")
-url_content = soup.select(selector=".mosaic-provider-jobcards")  # ne fonctionne pas (tri à faire)
+global_content = soup.select("a[data-jk]")
 # print(global_content)
-# print(f"{url_content}\n\n\n------------------------------------------")  # problème lié à la longueur
 
-# print(len(global_content))
-# print(len(url_content))
-
-for content, url in zip(global_content, url_content):
+for content in global_content:
     job_title = content.h2.getText().replace("nouveau", "")
     job_company = content.find("span", "companyName").getText()
     job_location = content.find("div", "companyLocation").getText()
+    job_summary = content.find("div", "job-snippet").getText().strip()
 
     try:
         job_salary = content.find("span", "salary-snippet").getText()
@@ -52,12 +48,15 @@ for content, url in zip(global_content, url_content):
     except IndexError:
         post_date = today.strftime("%Y-%m-%d")
 
-    job_summary = content.find("div", "job-snippet").getText().strip()
-    # job_url = endpoint + url.find("a", "tapItem").get("href")
+    try:
+        job_url = final_url + "&advn=" + content.get("data-empn") + "&vjk=" + content.get("data-jk")
+    except TypeError:
+        job_url = final_url + "&vjk=" + content.get("data-jk")
+
     print(job_title)
     print(job_company)
     print(job_location)
     print(job_salary)
     print(post_date)
     print(job_summary)
-    # print(job_url)
+    print(job_url)
