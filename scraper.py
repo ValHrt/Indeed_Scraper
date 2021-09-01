@@ -20,12 +20,13 @@ class Scraper:
                 "jt": self.j_type,
         }
         self.response = requests.get(self.endpoint, self.parameters)
+        self.response.raise_for_status()
         self.final_url = self.response.url
         self.soup = self.scrape_html(self.response.text)[0]
         self.global_content = self.scrape_html(self.response.text)[1]
 
     @staticmethod
-    def get_record(content, today, final_url):
+    def get_record(content: BeautifulSoup, today: dt, final_url: str):
         job_title = content.h2.getText().replace("nouveau", "")
         job_company = content.find("span", "companyName").getText()
         job_location = content.find("div", "companyLocation").getText()
@@ -58,6 +59,11 @@ class Scraper:
         global_content = soup.select("a[data-jk]")
         return soup, global_content
 
-    def get_next_page(self, soup):  # Méthode à corriger (ne fonctionne pas)
-        self.final_url = self.endpoint + soup.select('a[aria-label="suivant"]')
+    def get_next_page(self, soup: BeautifulSoup):
+        url_tag = soup.select('a[aria-label="Suivant"]')
+        tmp = self.final_url
+        for tag in url_tag:
+            self.final_url = self.endpoint + tag.get("href")
+        if self.final_url == tmp:
+            return "Fin du scrapping"
         return self.final_url
