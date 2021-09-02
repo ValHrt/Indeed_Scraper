@@ -24,6 +24,7 @@ class Scraper:
         self.final_url = self.response.url
         self.soup = self.scrape_html(self.response.text)[0]
         self.global_content = self.scrape_html(self.response.text)[1]
+        self.page_number = 1
 
     @staticmethod
     def get_record(content: BeautifulSoup, today: dt, final_url: str):
@@ -82,10 +83,11 @@ class Scraper:
         est accessible de la façon suivante :
         scraper = Scraper(job_name, job_location, job_distance, job_type)
         next_page = scraper.get_next_page(scraper.soup)"""
-        url_tag = soup.select('a[aria-label="Suivant"]')
+        url_tag = soup.select(f'a[aria-label="{self.page_number}"]')
         tmp = self.final_url
         for tag in url_tag:
-            self.final_url = self.endpoint + tag.get("href")
+            self.final_url = ("https://fr.indeed.com" + tag.get("href"))  # Corriger en prenant en compte seulement l'argument "start" de href et l'ajouter à l'url complète et non à l'endpoint
         if self.final_url == tmp:
+            print(f"Fin du scrapping. Nombre de pages scrapées : {self.page_number - 1}")
             return "Fin du scrapping"
         return self.final_url
