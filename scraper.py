@@ -86,7 +86,7 @@ class Scraper:
         url_tag = soup.select(f'a[aria-label="{self.page_number}"]')
         tmp = self.final_url
         for tag in url_tag:
-            self.final_url = ("https://fr.indeed.com" + tag.get("href"))  # Corriger en prenant en compte seulement l'argument "start" de href et l'ajouter à l'url complète et non à l'endpoint
+            self.final_url = ("https://fr.indeed.com" + tag.get("href"))
         if self.final_url == tmp:
             print(f"Fin du scrapping. Nombre de pages scrapées : {self.page_number - 1}")
             return "Fin du scrapping"

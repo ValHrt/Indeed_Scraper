@@ -36,7 +36,7 @@ while scrap:
         scraper.response = requests.get(next_page)
         scraper.response.raise_for_status()
         scraper.final_url = scraper.response.url
-        print(scraper.final_url)  # Fait ressortir un problème dans la redirection des liens (perte de la donnée job_name dans l'url)
+        print(scraper.final_url)
         scraper.soup = scraper.scrape_html(scraper.response.text)[0]
         global_content = scraper.scrape_html(scraper.response.text)[1]
         time.sleep(5)

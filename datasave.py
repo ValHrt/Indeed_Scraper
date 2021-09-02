@@ -22,14 +22,12 @@ class DataSave:
             parent_dir = os.getcwd()
             path = os.path.join(parent_dir, directory)
             os.makedirs(path)
-            time.sleep(3)
 
         if not os.path.isdir(f"Data/{location}"):
             directory2 = location
             parent_dir2 = os.path.realpath("Data")
             path2 = os.path.join(parent_dir2, directory2)
             os.makedirs(path2)
-            time.sleep(3)
 
         if not os.path.isdir(f"Data/{location}/{self.job_type}"):
             directory3 = self.job_type
