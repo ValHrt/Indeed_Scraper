@@ -8,6 +8,7 @@ class Scraper:
 
     def __init__(self, name: str, location: str, distance: str, j_type: str):
         self.today = dt.datetime.today()
+        # self.endpoint = "https://ch.indeed.com/jobs"  # Fonctionne avec Indeed Suisse
         self.endpoint = "https://fr.indeed.com/jobs"  # Partie à inclure dans l'UI pour choix du pays
         self.name = name
         self.location = location
@@ -26,7 +27,7 @@ class Scraper:
         self.global_content = self.scrape_html(self.response.text)[1]
         self.page_number = 1
 
-    @staticmethod
+    @staticmethod  # Méthode à revoir notamment sur l'argument today qui peut être passé en self
     def get_record(content: BeautifulSoup, today: dt, final_url: str):
         """"Permet d'obtenir les enregistrements au format texte pour les éléments suivants :
          Titre / Nom de l'entreprise / Lieu / Salaire / Lien de l'annonce / Résumé de l'annonce.
@@ -86,7 +87,7 @@ class Scraper:
         url_tag = soup.select(f'a[aria-label="{self.page_number}"]')
         tmp = self.final_url
         for tag in url_tag:
-            self.final_url = ("https://fr.indeed.com" + tag.get("href"))
+            self.final_url = ("https://fr.indeed.com" + tag.get("href"))  # https://ch.indeed.com
         if self.final_url == tmp:
             print(f"Fin du scrapping. Nombre de pages scrapées : {self.page_number - 1}")
             return "Fin du scrapping"
