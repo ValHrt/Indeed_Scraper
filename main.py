@@ -2,6 +2,7 @@ import requests
 import time
 from scraper import Scraper
 from datasave import DataSave
+from user_interface import UserInterface
 
 
 job_name = input("Intitulé du poste : ")
@@ -11,6 +12,7 @@ job_type = input("Type de poste recherché (internship, permanent, ...) : ")
 
 scrap = True
 
+# user_interface = UserInterface()
 scraper = Scraper(job_name, job_location, job_distance, job_type)
 global_content = scraper.global_content
 print(scraper.final_url)
