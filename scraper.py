@@ -27,8 +27,7 @@ class Scraper:
         self.global_content = self.scrape_html(self.response.text)[1]
         self.page_number = 1
 
-    @staticmethod  # Méthode à revoir notamment sur l'argument today qui peut être passé en self
-    def get_record(content: BeautifulSoup, today: dt, final_url: str):
+    def get_record(self, content: BeautifulSoup, final_url: str):
         """"Permet d'obtenir les enregistrements au format texte pour les éléments suivants :
          Titre / Nom de l'entreprise / Lieu / Salaire / Lien de l'annonce / Résumé de l'annonce.
          Cette fonction doit être intégrée dans une boucle (for loop) pour pouvoir récupérer les
@@ -46,11 +45,11 @@ class Scraper:
         try:
             post_date = int(re.findall("\\d+", content.find("span", "date").getText())[0])
             if post_date < 30:
-                post_date = (today - dt.timedelta(days=post_date)).strftime("%Y-%m-%d")
+                post_date = (self.today - dt.timedelta(days=post_date)).strftime("%Y-%m-%d")
             else:
                 post_date = "Posté il y a plus de 30 jours"
         except IndexError:
-            post_date = today.strftime("%Y-%m-%d")
+            post_date = self.today.strftime("%Y-%m-%d")
 
         try:
             job_url = final_url + "&advn=" + content.get("data-empn") + "&vjk=" + content.get("data-jk")
