@@ -1,15 +1,19 @@
 import tkinter as tk
-import tkmacosx as tkmac
+from tkmacosx import Button
 from PIL import Image, ImageTk
 
 
 BACKGROUND_COLOR = "#C2FFD9"
 TITLE_FONT = ("Courrier", 18, "underline")
 GLOBAL_FONT = ("Courrier", 16)
+VALIDATION_BUTTON = "#78C5EF"
+ERASE_BUTTON = "#BE0000"
 
 job_type_dict = {"CDI": "permanent", "Temps plein": "fulltime", "CDD": "contract", "Intérim": "temporary",
                  "Temps partiel": "parttime", "Apprentissage": "apprenticeship", "Stage": "internship",
                  "Freelance": "subcontract"}
+
+conversion_dict = {'country': 'Pays', 'contract_type': 'Type de contrat', 'location': 'Lieu recherché', 'job_name': 'Intitulé du poste'}
 
 
 class UserInterface:
@@ -45,6 +49,10 @@ class UserInterface:
         self.distance_text = tk.Label(text="Distance max :", font=TITLE_FONT, bg=BACKGROUND_COLOR)
         self.distance_text.grid(row=2, column=3)
 
+        self.job_text = tk.Label(text="Intitulé du poste :", font=TITLE_FONT, bg=BACKGROUND_COLOR)
+        self.job_text.grid(row=6, column=1, columnspan=2)
+        self.job_text.config(pady=5)
+
         # Radio buttons :
         self.radio_state = tk.StringVar()
         self.radiobutton1 = tk.Radiobutton(text="France", value="https://fr.indeed.com/jobs", variable=self.radio_state,
@@ -64,26 +72,57 @@ class UserInterface:
 
         # Entry labels :
         self.input_location = tk.Entry(width=10, highlightthickness=0, justify="center")
-        self.input_location.insert(tk.END, "Lieu")
         self.input_location.grid(row=3, column=2)
 
+        self.input_job_name = tk.Entry(width=15, highlightthickness=0, justify="center")
+        self.input_job_name.grid(row=7, column=1, columnspan=2)
+
         # Spinbox menu :
-        self.spinbox_distance = tk.Spinbox(from_=0, to=100, width=5, increment=25, command=self.get_spinbox, highlightthickness=0)  # Voir comment ajouter les km
+        self.spinbox_distance = tk.Spinbox(from_=0, to=100, width=5, increment=25, highlightthickness=0)  # Voir comment ajouter les km
         self.spinbox_distance.grid(row=3, column=3)
+
+        # Button label
+        self.validation_button = Button(text="Valider", font=("Courrier", 12, "bold"), command=self.button_clicked, bg=VALIDATION_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
+        self.validation_button.grid(row=8, column=1, columnspan=2, pady=15)
+
+        self.erase_button = Button(text="Remettre à 0", font=("Courrier", 12, "bold"), command=self.button_erase, bg=ERASE_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
+        self.erase_button.grid(row=9, column=1, columnspan=2)
 
         # Root mainloop :
         self.root.mainloop()
 
     def radio_used(self):
-        print(self.radio_state.get())
+        return self.radio_state.get()
 
-    @staticmethod
-    def get_opt_value(selection):
-        print(job_type_dict[selection])
+    def get_opt_value(self, *args):
+        try:
+            return job_type_dict[self.variable.get()]
+        except KeyError:
+            return ""
 
-    def get_label(self):
-        # récupérer la valeur du label input_location
-        pass
+    def button_clicked(self):
+        data = dict()
+        missing_items = list()
+        i = 0
+        data["country"] = self.radio_used()
+        data["contract_type"] = self.get_opt_value()
+        data["location"] = self.input_location.get()
+        data["job_distance"] = self.spinbox_distance.get()
+        data["job_name"] = self.input_job_name.get()
 
-    def get_spinbox(self):
+        for item in data.keys():
+            if data[item] != "":
+                i += 1
+            else:
+                missing_items.append(item)
+
+        if i == 5:
+            print(data)
+            return data
+        else:
+            for item in missing_items:
+                print(f"Item manquant : {conversion_dict[item]}")
+            return None
+
+    def button_erase(self):
         pass
