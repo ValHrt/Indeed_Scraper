@@ -5,8 +5,8 @@ from datasave import DataSave
 from user_interface import UserInterface
 
 
-job_name = input("Intitulé du poste : ")
-job_location = input("Lieu du poste : ")
+job_name = input("Intitulé du poste : ").replace(" ", "+")
+job_location = input("Lieu du poste : ").replace(" ", "+")
 job_distance = input("Combien de kilomètres maximum du lieu indiqué (par tranche de 25km) : ")
 job_type = input("Type de poste recherché (internship, permanent, ...) : ")
 
@@ -17,14 +17,14 @@ scraper = Scraper(job_name, job_location, job_distance, job_type)
 global_content = scraper.global_content
 print(scraper.final_url)
 
-datasave = DataSave(scraper.today.strftime("%Y-%m-%d"), job_type.title())
+datasave = DataSave(scraper.today.strftime("%Y-%m-%d"), job_type, job_name, job_location)
 
 records = []
 
 while scrap:
 
     for content in global_content:
-        data = scraper.get_record(content, scraper.today, scraper.final_url)
+        data = scraper.get_record(content, scraper.final_url)
         print(data)
         records.append(data)
 
@@ -43,4 +43,7 @@ while scrap:
         global_content = scraper.scrape_html(scraper.response.text)[1]
         time.sleep(5)
 
-datasave.save_to_csv(job_location.title(), records)
+if len(records) > 0:
+    datasave.save_to_csv(records)
+else:
+    print("Aucun résultat trouvé pour ces critères.")
