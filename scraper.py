@@ -6,9 +6,8 @@ import datetime as dt
 
 class Scraper:
 
-    def __init__(self, name: str, location: str, distance: str, j_type: str):
+    def __init__(self, endpoint: str, name: str, location: str, distance: str, j_type: str):
         self.today = dt.datetime.today()
-        # self.endpoint = "https://ch.indeed.com/jobs"  # Fonctionne avec Indeed Suisse
         self.endpoint = "https://fr.indeed.com/jobs"  # Partie à inclure dans l'UI pour choix du pays
         self.name = name
         self.location = location
@@ -32,7 +31,7 @@ class Scraper:
          Titre / Nom de l'entreprise / Lieu / Salaire / Lien de l'annonce / Résumé de l'annonce.
          Cette fonction doit être intégrée dans une boucle (for loop) pour pouvoir récupérer les
          éléments de toutes les balises <a> !"""
-        job_title = content.h2.getText().replace("nouveau", "")
+        job_title = content.h2.getText().replace("nouveau", "").replace("ne", "")
         job_company = content.find("span", "companyName").getText()
         job_location = content.find("div", "companyLocation").getText()
         job_summary = content.find("div", "job-snippet").getText().strip().replace("\n", " ")
