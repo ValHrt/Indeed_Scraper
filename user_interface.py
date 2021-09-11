@@ -13,7 +13,8 @@ job_type_dict = {"CDI": "permanent", "Temps plein": "fulltime", "CDD": "contract
                  "Temps partiel": "parttime", "Apprentissage": "apprenticeship", "Stage": "internship",
                  "Freelance": "subcontract"}
 
-conversion_dict = {'country': 'Pays', 'contract_type': 'Type de contrat', 'location': 'Lieu recherché', 'job_name': 'Intitulé du poste'}
+conversion_dict = {'country': 'Pays', 'contract_type': 'Type de contrat', 'location': 'Lieu recherché',
+                   'job_name': 'Intitulé du poste'}
 
 
 class UserInterface:
@@ -33,7 +34,8 @@ class UserInterface:
         self.canvas.grid(row=1, column=1, columnspan=2)
 
         # Labels :
-        self.intro_text = tk.Label(text="Bienvenue sur le scraper Indeed !", font=("Courrier", 25, "bold"), bg=BACKGROUND_COLOR)
+        self.intro_text = tk.Label(text="Bienvenue sur le scraper Indeed !", font=("Courrier", 25, "bold"),
+                                   bg=BACKGROUND_COLOR)
         self.intro_text.grid(row=0, column=1, columnspan=2)
 
         self.country_text = tk.Label(text="Pays :", font=TITLE_FONT, bg=BACKGROUND_COLOR, anchor="w")
@@ -82,14 +84,17 @@ class UserInterface:
         # Spinbox menu :
         self.spin_var = tk.StringVar(self.root)
         self.spin_var.set(0)
-        self.spinbox_distance = tk.Spinbox(self.root, from_=0, to=100, width=5, increment=25, highlightthickness=0, textvariable=self.spin_var)  # Voir comment ajouter les km
+        self.spinbox_distance = tk.Spinbox(self.root, from_=0, to=100, width=5, increment=25, highlightthickness=0,
+                                           textvariable=self.spin_var)  # Voir comment ajouter les km
         self.spinbox_distance.grid(row=3, column=3)
 
         # Button label
-        self.validation_button = Button(text="Valider", font=("Courrier", 12, "bold"), command=self.button_clicked, bg=VALIDATION_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
+        self.validation_button = Button(text="Valider", font=("Courrier", 12, "bold"), command=self.button_clicked,
+                                        bg=VALIDATION_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
         self.validation_button.grid(row=8, column=1, columnspan=2, pady=15)
 
-        self.erase_button = Button(text="Remettre à 0", font=("Courrier", 12, "bold"), command=self.button_erase, bg=ERASE_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
+        self.erase_button = Button(text="Remettre à 0", font=("Courrier", 12, "bold"), command=self.button_erase,
+                                   bg=ERASE_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
         self.erase_button.grid(row=9, column=1, columnspan=2)
 
         # Root mainloop :
@@ -107,6 +112,7 @@ class UserInterface:
     def button_clicked(self):
         data = dict()
         missing_items = list()
+        text_items = list()
         i = 0
 
         if self.error_label is not None:
@@ -128,10 +134,12 @@ class UserInterface:
             print(data)
             return data
         else:
-            self.error_label = tk.Label(text="Items manquants", font=TITLE_FONT, bg=BACKGROUND_COLOR)
-            self.error_label.grid(row=10, column=1, columnspan=2)  # Inclure les items manquants dans le texte
             for item in missing_items:
-                print(f"Item manquant : {conversion_dict[item]}")
+                text_items.append(conversion_dict[item])
+            self.error_label = tk.Label(text=f"Item{self.grammar_check(text_items)} "
+                                             f"manquant{self.grammar_check(text_items)} : {' / '.join(text_items)}",
+                                             font=GLOBAL_FONT, bg=BACKGROUND_COLOR, fg=ERASE_BUTTON, pady=10)
+            self.error_label.grid(row=10, column=1, columnspan=2)
             return None
 
     def button_erase(self):
@@ -143,3 +151,9 @@ class UserInterface:
         if self.error_label is not None:
             self.error_label.destroy()
 
+    @staticmethod
+    def grammar_check(items: list):
+        if len(items) > 1:
+            return "s"
+        else:
+            return ""
