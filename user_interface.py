@@ -53,19 +53,21 @@ class UserInterface:
         self.job_text.grid(row=6, column=1, columnspan=2)
         self.job_text.config(pady=5)
 
+        self.error_label = None
+
         # Radio buttons :
         self.radio_state = tk.StringVar()
         self.radiobutton1 = tk.Radiobutton(text="France", value="https://fr.indeed.com/jobs", variable=self.radio_state,
-                                           command=self.radio_used, bg=BACKGROUND_COLOR, font=GLOBAL_FONT)
+                                           bg=BACKGROUND_COLOR, font=GLOBAL_FONT)
         self.radiobutton2 = tk.Radiobutton(text="Suisse", value="https://ch.indeed.com/jobs", variable=self.radio_state,
-                                           command=self.radio_used, bg=BACKGROUND_COLOR, font=GLOBAL_FONT)
+                                           bg=BACKGROUND_COLOR, font=GLOBAL_FONT)
         self.radiobutton1.grid(row=3, column=0)
         self.radiobutton2.grid(row=4, column=0)
 
         # Option menu :
         self.variable = tk.StringVar(self.root)
         self.variable.set("Votre choix")
-        self.opt = tk.OptionMenu(self.root, self.variable, *job_type_dict.keys(), command=self.get_opt_value)
+        self.opt = tk.OptionMenu(self.root, self.variable, *job_type_dict.keys())
         self.opt["highlightthickness"] = 0
         self.opt.config(width=10, pady=0, padx=0)
         self.opt.grid(row=3, column=1)
@@ -78,7 +80,9 @@ class UserInterface:
         self.input_job_name.grid(row=7, column=1, columnspan=2)
 
         # Spinbox menu :
-        self.spinbox_distance = tk.Spinbox(from_=0, to=100, width=5, increment=25, highlightthickness=0)  # Voir comment ajouter les km
+        self.spin_var = tk.StringVar(self.root)
+        self.spin_var.set(0)
+        self.spinbox_distance = tk.Spinbox(self.root, from_=0, to=100, width=5, increment=25, highlightthickness=0, textvariable=self.spin_var)  # Voir comment ajouter les km
         self.spinbox_distance.grid(row=3, column=3)
 
         # Button label
@@ -104,6 +108,10 @@ class UserInterface:
         data = dict()
         missing_items = list()
         i = 0
+
+        if self.error_label is not None:
+            self.error_label.destroy()
+
         data["country"] = self.radio_used()
         data["contract_type"] = self.get_opt_value()
         data["location"] = self.input_location.get()
@@ -120,9 +128,18 @@ class UserInterface:
             print(data)
             return data
         else:
+            self.error_label = tk.Label(text="Items manquants", font=TITLE_FONT, bg=BACKGROUND_COLOR)
+            self.error_label.grid(row=10, column=1, columnspan=2)  # Inclure les items manquants dans le texte
             for item in missing_items:
                 print(f"Item manquant : {conversion_dict[item]}")
             return None
 
     def button_erase(self):
-        pass
+        self.radio_state.set(None)
+        self.variable.set("Votre choix")
+        self.input_location.delete(0, tk.END)
+        self.input_job_name.delete(0, tk.END)
+        self.spin_var.set(0)
+        if self.error_label is not None:
+            self.error_label.destroy()
+
