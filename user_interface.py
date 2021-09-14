@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkmacosx import Button
 from scraper import Scraper
+from datasave import DataSave
 from PIL import Image, ImageTk
 import requests
 import time
@@ -60,6 +61,7 @@ class UserInterface:
         self.job_text.config(pady=5)
 
         self.error_label = None
+        self.save_sucess_label = None
 
         # Radio buttons :
         self.radio_state = tk.StringVar()
@@ -121,6 +123,8 @@ class UserInterface:
 
         if self.error_label is not None:
             self.error_label.destroy()
+        if self.save_sucess_label is not None:
+            self.save_sucess_label.destroy()
 
         data["country"] = self.radio_used()
         data["contract_type"] = self.get_opt_value()
@@ -153,6 +157,8 @@ class UserInterface:
         self.spin_var.set(0)
         if self.error_label is not None:
             self.error_label.destroy()
+        if self.save_sucess_label is not None:
+            self.save_sucess_label.destroy()
 
     @staticmethod
     def grammar_check(items: list):
@@ -161,8 +167,7 @@ class UserInterface:
         else:
             return ""
 
-    @staticmethod
-    def get_results(country: str, job_name: str, location: str, job_distance: str, contract_type: str):
+    def get_results(self, country: str, job_name: str, location: str, job_distance: str, contract_type: str):
         records = list()
         scrap = True
         scraper = Scraper(country, job_name, location, job_distance, contract_type)
@@ -200,11 +205,17 @@ class UserInterface:
                                                                                   f"\nVoulez-vous sauvegarder ces "
                                                                                   f"résultats ?")
             if is_ok:
-                print("Sauvegarde en cours")
-                # datasave.save_to_csv(records)
+                # print("Sauvegarde en cours")
+                datasave = DataSave(scraper.today.strftime("%Y-%m-%d"), contract_type, job_name, location)
+                datasave.save_to_csv(records)
+                self.save_sucess_label = tk.Label(text=f"Sauvegarde effectuée avec succès, le fichier se trouve à "
+                                                  f"l'emplacement suivant : \nData/{location.title()}/"
+                                                  f"{contract_type.title()}/{job_name.title()}", font=GLOBAL_FONT,
+                                                  bg=BACKGROUND_COLOR, pady=10)
+                self.save_sucess_label.grid(row=10, column=1, columnspan=2)
             else:
                 print("Pas de sauvegarde")
         else:
             messagebox.showwarning(title="Oops",
                                    message="Cette recherche ne renvoie aucun résultat, merci de changer les critères.")
-            print("Aucun résultat trouvé pour ces critères.")
+            # print("Aucun résultat trouvé pour ces critères.")
