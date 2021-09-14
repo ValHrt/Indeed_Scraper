@@ -8,7 +8,8 @@ class Scraper:
 
     def __init__(self, endpoint: str, name: str, location: str, distance: str, j_type: str):
         self.today = dt.datetime.today()
-        self.endpoint = "https://fr.indeed.com/jobs"  # Partie à inclure dans l'UI pour choix du pays
+        # self.endpoint = "https://fr.indeed.com/jobs"  # Partie à inclure dans l'UI pour choix du pays
+        self.endpoint = endpoint
         self.name = name
         self.location = location
         self.distance = distance
@@ -85,7 +86,7 @@ class Scraper:
         url_tag = soup.select(f'a[aria-label="{self.page_number}"]')
         tmp = self.final_url
         for tag in url_tag:
-            self.final_url = ("https://fr.indeed.com" + tag.get("href"))  # https://ch.indeed.com
+            self.final_url = (self.endpoint.replace("/jobs", "") + tag.get("href"))  # https://ch.indeed.com
         if self.final_url == tmp:
             print(f"Fin du scrapping. Nombre de pages scrapées : {self.page_number - 1}")
             return "Fin du scrapping"
