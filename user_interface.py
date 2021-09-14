@@ -1,6 +1,10 @@
 import tkinter as tk
+from tkinter import messagebox
 from tkmacosx import Button
+from scraper import Scraper
 from PIL import Image, ImageTk
+import requests
+import time
 
 
 BACKGROUND_COLOR = "#C2FFD9"
@@ -94,7 +98,7 @@ class UserInterface:
         self.validation_button.grid(row=8, column=1, columnspan=2, pady=15)
 
         self.erase_button = Button(text="Remettre à 0", font=("Courrier", 12, "bold"), command=self.button_erase,
-                                   bg=ERASE_BUTTON, highlightthickness=0, borderless=1, takefocus=0)
+                                   bg=ERASE_BUTTON, highlightthickness=0, borderless=1, takefocus=0, fg="white")
         self.erase_button.grid(row=9, column=1, columnspan=2)
 
         # Root mainloop :
@@ -132,7 +136,7 @@ class UserInterface:
 
         if i == 5:
             print(data)
-            return data
+            self.get_results(data["country"], data["job_name"], data["location"], data["job_distance"], data["contract_type"])
         else:
             for item in missing_items:
                 text_items.append(conversion_dict[item])
@@ -140,7 +144,6 @@ class UserInterface:
                                              f"manquant{self.grammar_check(text_items)} : {' / '.join(text_items)}",
                                              font=GLOBAL_FONT, bg=BACKGROUND_COLOR, fg=ERASE_BUTTON, pady=10)
             self.error_label.grid(row=10, column=1, columnspan=2)
-            return None
 
     def button_erase(self):
         self.radio_state.set(None)
@@ -157,3 +160,51 @@ class UserInterface:
             return "s"
         else:
             return ""
+
+    @staticmethod
+    def get_results(country: str, job_name: str, location: str, job_distance: str, contract_type: str):
+        records = list()
+        scrap = True
+        scraper = Scraper(country, job_name, location, job_distance, contract_type)
+        global_content = scraper.global_content
+        print(scraper.final_url)
+        messagebox.showwarning(title="Scraping en cours", message="Scraping en cours, merci de ne pas quitter "
+                                                                  "l'application et de ne pas cliquer sur 'Valider' "
+                                                                  "à nouveau")
+
+        while scrap:
+
+            for content in global_content:
+                data = scraper.get_record(content, scraper.final_url)
+                print(data)
+                records.append(data)
+
+            scraper.page_number += 1
+            next_page = scraper.get_next_page(scraper.soup)
+
+            if next_page == "Fin du scrapping":
+                scrap = False
+
+            else:
+                scraper.response = requests.get(next_page)
+                scraper.response.raise_for_status()
+                scraper.final_url = scraper.response.url
+                print(scraper.final_url)
+                scraper.soup = scraper.scrape_html(scraper.response.text)[0]
+                global_content = scraper.scrape_html(scraper.response.text)[1]
+                time.sleep(5)
+
+        if len(records) > 0:
+            is_ok = messagebox.askokcancel(title="Résultat de recherche", message=f"Nombre de résultats trouvés pour "
+                                                                                  f"cette recherche : {len(records)}"
+                                                                                  f"\nVoulez-vous sauvegarder ces "
+                                                                                  f"résultats ?")
+            if is_ok:
+                print("Sauvegarde en cours")
+                # datasave.save_to_csv(records)
+            else:
+                print("Pas de sauvegarde")
+        else:
+            messagebox.showwarning(title="Oops",
+                                   message="Cette recherche ne renvoie aucun résultat, merci de changer les critères.")
+            print("Aucun résultat trouvé pour ces critères.")
