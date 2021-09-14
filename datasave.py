@@ -7,8 +7,8 @@ class DataSave:
     def __init__(self, scrape_date: str, job_type: str, job_name: str, location: str):
         self.scrape_date = scrape_date
         self.job_type = job_type.title()
-        self.job_name = job_name.title().replace(" ", "+")  # à voir si cette manip s'effectue dans l'UI
-        self.location = location.title().replace(" ", "+")  # à voir si cette manip s'effectue dans l'UI
+        self.job_name = job_name.title().replace(" ", "+")
+        self.location = location.title().replace(" ", "+")
 
     def save_to_csv(self, records: list):
         self.create_directory()
