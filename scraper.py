@@ -32,7 +32,11 @@ class Scraper:
          Titre / Nom de l'entreprise / Lieu / Salaire / Lien de l'annonce / Résumé de l'annonce.
          Cette fonction doit être intégrée dans une boucle (for loop) pour pouvoir récupérer les
          éléments de toutes les balises <a> !"""
-        job_title = content.h2.getText().replace("nouveau", "").replace("ne", "")
+        job_title = content.h2.getText()
+        if job_title.startswith("nouveau"):  # Indeed France
+            job_title = job_title.replace("nouveau", "", 1)
+        if job_title.startswith("neu"):  # Indeed Suisse
+            job_title = job_title.replace("neu", "", 1)
         job_company = content.find("span", "companyName").getText()
         job_location = content.find("div", "companyLocation").getText()
         job_summary = content.find("div", "job-snippet").getText().strip().replace("\n", " ")
